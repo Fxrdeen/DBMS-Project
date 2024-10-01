@@ -48,9 +48,10 @@ export default function ResponsiveNavbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               <NavLink href="/">Home</NavLink>
-              <NavLink href="/about">About</NavLink>
               <NavLink href="/find-jobs">Find Jobs</NavLink>
               <NavLink href="/post-jobs">Post Jobs</NavLink>
+              <NavLink href="/about">About</NavLink>
+              <NavLink href="/contact">Contact</NavLink>
             </div>
           </div>
 

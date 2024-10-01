@@ -7,39 +7,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for jobs
-const jobs = [
-  {
-    id: 1,
-    title: "Full Stack Developer",
-    description:
-      "We're looking for a skilled full stack developer to join our team and work on exciting projects.",
-    budget: "$5000 - $8000",
-    client: "TechCorp Inc.",
-    skills: ["React", "Node.js", "MongoDB"],
-  },
-  {
-    id: 2,
-    title: "UI/UX Designer",
-    description:
-      "Seeking a creative UI/UX designer to help design intuitive and beautiful user interfaces for our products.",
-    budget: "$3000 - $5000",
-    client: "DesignHub",
-    skills: ["Figma", "Adobe XD", "Sketch"],
-  },
-  {
-    id: 3,
-    title: "Data Scientist",
-    description:
-      "We need a data scientist to analyze large datasets and provide insights to drive business decisions.",
-    budget: "$6000 - $9000",
-    client: "DataDriven Co.",
-    skills: ["Python", "Machine Learning", "SQL"],
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { Job } from "@/types";
+import { getJobs } from "@/server";
+import { Loader2 } from "lucide-react";
 
 export default function AppPage() {
+  const { data, isLoading } = useQuery<Job[]>({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const result = await getJobs();
+      return result as Job[];
+    },
+  });
+  const jobs = data?.slice(0, 6);
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="w-10 h-10 animate-spin" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-grow">
@@ -68,31 +56,33 @@ export default function AppPage() {
               Featured Jobs
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobs.map((job) => (
-                <Card key={job.id} className="flex flex-col">
-                  <CardHeader>
-                    <CardTitle>{job.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="text-muted-foreground mb-4">
-                      {job.description}
-                    </p>
-                    <p className="font-semibold">Budget: {job.budget}</p>
-                  </CardContent>
-                  <CardFooter className="flex flex-col items-start">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Posted by: {job.client}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {job.skills.map((skill, index) => (
-                        <Badge key={index} variant="secondary">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
+              {jobs?.map((job) =>
+                job.status === "open" ? (
+                  <Card key={job.job_id} className="flex flex-col">
+                    <CardHeader>
+                      <CardTitle>{job.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-muted-foreground mb-4">
+                        {job.description}
+                      </p>
+                      <p className="font-semibold">Budget: {job.budget}</p>
+                    </CardContent>
+                    <CardFooter className="flex flex-col items-start">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Posted by: {job.client_name}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {job.skills_required?.map((skill, index) => (
+                          <Badge key={index} variant="secondary">
+                            {skill || "No skills required"}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardFooter>
+                  </Card>
+                ) : null
+              )}
             </div>
           </div>
         </section>

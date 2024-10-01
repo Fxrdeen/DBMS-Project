@@ -1,21 +1,20 @@
 "use client";
-import { getData } from "@/server";
-
-import { User } from "@/types";
+import { getJobs } from "@/server";
+import { Job } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 const AboutPage = () => {
-  const { data, isLoading } = useQuery<User[]>({
+  const { data, isLoading } = useQuery<Job[]>({
     queryKey: ["user"],
     queryFn: async () => {
-      const result = await getData();
-      return result as User[];
+      const result = await getJobs();
+      return result as Job[];
     },
   });
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  return <div>{data?.map((user) => user.name).join(", ")}</div>;
+  return <div>{JSON.stringify(data)}</div>;
 };
 
 export default AboutPage;
