@@ -8,12 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
+import { SignInButton, UserButton } from "@clerk/nextjs";
+import { User } from "@clerk/nextjs/server";
 
-export default function ResponsiveNavbar() {
+export default function ResponsiveNavbar({ user }: { user: User }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -25,7 +26,7 @@ export default function ResponsiveNavbar() {
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
-
+  console.log(user);
   return (
     <nav className="bg-background shadow-md dark:shadow-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,23 +49,37 @@ export default function ResponsiveNavbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               <NavLink href="/">Home</NavLink>
-              <NavLink href="/find-jobs">Find Jobs</NavLink>
-              <NavLink href="/post-jobs">Post Jobs</NavLink>
+              <NavLink href="/jobs">Find Jobs</NavLink>
+              <NavLink href="/create">Post Jobs</NavLink>
               <NavLink href="/about">About</NavLink>
               <NavLink href="/contact">Contact</NavLink>
             </div>
           </div>
 
           {/* Login Button and Dark Mode Toggle */}
+
           <motion.div
             className="hidden md:flex items-center space-x-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Button className="bg-black hover:bg-black/90 text-primary-foreground transition-colors duration-300">
-              <NavLink href="/login">Login</NavLink>
-            </Button>
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <UserButton />
+                <Button className="bg-black hover:bg-black/90 text-primary-foreground transition-colors duration-300">
+                  <h1 className="text-white dark:text-white">
+                    Welcome, {user.emailAddresses[0].emailAddress.split("@")[0]}
+                  </h1>
+                </Button>
+              </div>
+            ) : (
+              <Button className="bg-black hover:bg-black/90 text-primary-foreground transition-colors duration-300">
+                <SignInButton>
+                  <h1 className="text-white dark:text-white">Sign In</h1>
+                </SignInButton>
+              </Button>
+            )}
             {mounted && (
               <Toggle
                 aria-label="Toggle dark mode"
@@ -139,7 +154,7 @@ export default function ResponsiveNavbar() {
             <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
               <div className="px-2">
                 <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300">
-                  Login
+                  Sign In
                 </Button>
               </div>
             </div>

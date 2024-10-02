@@ -17,3 +17,11 @@ export type Job = {
   client_name: string;
   skills_required: string[] | null[];
 };
+
+export type Bid = {
+  bid_id: number;
+  freelancer_name: string;
+  bid_amount: number;
+  status: string;
+  created_at: string;
+};

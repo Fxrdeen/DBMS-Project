@@ -1,15 +1,15 @@
 "use client";
-import AppPage from "@/components/app-page";
 import ResponsiveNavbar from "@/components/responsive-navbar";
 import { useUser } from "@clerk/nextjs";
 import { User } from "@clerk/nextjs/server";
-
-export default function Home() {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useUser();
   return (
-    <div className="flex flex-col gap-y-5">
+    <div className="flex flex-col min-h-screen">
       <ResponsiveNavbar user={user as unknown as User} />
-      <AppPage user={user as unknown as User} />
+      <main className="flex-grow">{children}</main>
     </div>
   );
-}
+};
+
+export default RootLayout;

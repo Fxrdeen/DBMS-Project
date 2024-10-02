@@ -11,10 +11,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/types";
 import { getJobs } from "@/server";
 import { Loader2 } from "lucide-react";
+import { User } from "@clerk/nextjs/server";
 
-export default function AppPage() {
+export default function AppPage({ user }: { user: User }) {
   const { data, isLoading } = useQuery<Job[]>({
-    queryKey: ["user"],
+    queryKey: ["jobs"],
     queryFn: async () => {
       const result = await getJobs();
       return result as Job[];
