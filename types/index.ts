@@ -3,7 +3,7 @@ export type User = {
   name: string;
   email: string;
   role: string;
-  rating: number;
+  rating: string;
   created_at: string;
 };
 
@@ -24,4 +24,14 @@ export type Bid = {
   bid_amount: number;
   status: string;
   created_at: string;
+};
+
+export type UserWithSkills = {
+  user_id: number;
+  name: string;
+  email: string;
+  role: string;
+  rating: string;
+  created_at: string;
+  skills: string[];
 };

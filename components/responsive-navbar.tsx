@@ -10,7 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import { User } from "@clerk/nextjs/server";
-
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { useRouter } from "next/navigation";
 export default function ResponsiveNavbar({ user }: { user: User }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -22,7 +27,7 @@ export default function ResponsiveNavbar({ user }: { user: User }) {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
+  const router = useRouter();
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
@@ -65,14 +70,31 @@ export default function ResponsiveNavbar({ user }: { user: User }) {
             transition={{ duration: 0.5 }}
           >
             {user ? (
-              <div className="flex items-center space-x-4">
-                <UserButton />
-                <Button className="bg-black hover:bg-black/90 text-primary-foreground transition-colors duration-300">
-                  <h1 className="text-white dark:text-white">
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button variant="ghost">
                     Welcome, {user.emailAddresses[0].emailAddress.split("@")[0]}
-                  </h1>
-                </Button>
-              </div>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="flex justify-between space-x-4">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold">Your Profile</h4>
+                      <p className="text-sm">
+                        Click to view and edit your profile information.
+                      </p>
+                      <div className="flex items-center pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => router.push("/profile")}
+                        >
+                          Go to Profile
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
             ) : (
               <Button className="bg-black hover:bg-black/90 text-primary-foreground transition-colors duration-300">
                 <SignInButton>
