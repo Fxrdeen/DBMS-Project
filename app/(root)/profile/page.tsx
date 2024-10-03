@@ -60,6 +60,7 @@ export default function ProfilePage() {
       );
       return result as User[];
     },
+    enabled: !!user?.emailAddresses[0].emailAddress,
   });
   console.log(data);
   const { data: userdata, isLoading: userdataLoading } = useQuery({
@@ -70,6 +71,7 @@ export default function ProfilePage() {
       setUserData(res[0]);
       return res[0];
     },
+    enabled: !!data?.[0].user_id,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

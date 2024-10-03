@@ -4,7 +4,7 @@ export type User = {
   email: string;
   role: string;
   rating: string;
-  created_at: string;
+  created_at: Date;
 };
 
 export type Job = {
@@ -12,7 +12,7 @@ export type Job = {
   title: string;
   description: string;
   budget: number;
-  deadline: string;
+  deadline: Date;
   status: string;
   client_name: string;
   skills_required: string[] | null[];
@@ -23,7 +23,7 @@ export type Bid = {
   freelancer_name: string;
   bid_amount: number;
   status: string;
-  created_at: string;
+  created_at: Date;
 };
 
 export type UserWithSkills = {
@@ -32,6 +32,6 @@ export type UserWithSkills = {
   email: string;
   role: string;
   rating: string;
-  created_at: string;
+  created_at: Date;
   skills: string[];
 };
