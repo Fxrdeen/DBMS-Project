@@ -199,9 +199,15 @@ const PageJob = () => {
               </p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleApplyClick}>
-                Apply for this Job
-              </Button>
+              {userDetails?.[0].name === job?.client_name ? (
+                <Button className="w-full" onClick={handleApplyClick} disabled>
+                  You can't apply to your own job
+                </Button>
+              ) : (
+                <Button className="w-full" onClick={handleApplyClick}>
+                  Apply for this Job
+                </Button>
+              )}
             </CardFooter>
           </Card>
           <Card className="max-w-3xl mx-auto">

@@ -117,3 +117,26 @@ GROUP BY
   console.log("User with skills:", response);
   return response;
 }
+
+export async function createJob(
+  title: string,
+  description: string,
+  budget: number,
+  deadline: Date,
+  clientId: number,
+  skills: string[]
+) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const jobId = await sql`
+      INSERT INTO Jobs (title, description, budget, deadline, client_id, status, created_at)
+      VALUES (${title}, ${description}, ${budget}, ${deadline}, ${clientId}, 'open', CURRENT_TIMESTAMP)
+      RETURNING job_id;
+    `;
+  for (const skill of skills) {
+    await sql`
+      INSERT INTO SkillsRequired (job_id, skill_name)
+      VALUES (${jobId[0].job_id}, ${skill})
+    `;
+  }
+  return jobId;
+}
