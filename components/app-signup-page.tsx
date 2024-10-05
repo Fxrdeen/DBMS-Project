@@ -116,25 +116,21 @@ export function SignUp() {
         code,
       });
       if (signUpAttempt.status === "complete") {
-        await signUp.update({
-          unsafeMetadata: {
-            firstName: form.getValues("firstName") as string,
-            lastName: form.getValues("lastName") as string,
-            skills: form.getValues("skills") as string[],
-            userType: form.getValues("userType") as string,
-          },
-        });
         await setActive({ session: signUpAttempt.createdSessionId });
+        toast({
+          title: "Success",
+          description: "Email verified successfully",
+        });
         router.push("/");
       } else {
+        toast({
+          title: "Error",
+          description: "Failed to verify email",
+          variant: "destructive",
+        });
         console.error(JSON.stringify(signUpAttempt, null, 2));
       }
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: "Failed to verify email",
-        variant: "destructive",
-      });
       console.error("Error:", JSON.stringify(err, null, 2));
     }
   };
@@ -166,7 +162,10 @@ export function SignUp() {
     return (
       <div className="min-h-screen flex items-center flex-col gap-4 justify-center bg-background p-4">
         <h1>Verify your email</h1>
-        <form onSubmit={handleVerify}>
+        <form
+          onSubmit={handleVerify}
+          className="flex flex-col gap-4 border border-b-gray-400 p-4 rounded-md"
+        >
           <label id="code">Enter your verification code</label>
           <Input
             value={code}
@@ -174,7 +173,9 @@ export function SignUp() {
             name="code"
             onChange={(e) => setCode(e.target.value)}
           />
-          <button type="submit">Verify</button>
+          <Button type="submit" className="w-full mt-4">
+            Verify
+          </Button>
         </form>
       </div>
     );

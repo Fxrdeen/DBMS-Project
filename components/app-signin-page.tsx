@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,6 +37,7 @@ export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -55,12 +57,24 @@ export function SignIn() {
       });
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
+        toast({
+          title: "Signed in",
+          description: "You have been signed in",
+        });
         router.push("/");
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
+        toast({
+          title: "Error",
+          description: "Something went wrong",
+        });
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+      });
     }
   }
 
