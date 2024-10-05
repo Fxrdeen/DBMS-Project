@@ -35,3 +35,24 @@ export type UserWithSkills = {
   created_at: Date;
   skills: string[];
 };
+
+export type userBids = {
+  job_id: number;
+  title: string;
+  description: string;
+  job_status: string;
+  budget: number;
+  deadline: Date;
+  bid_amount: number;
+  bid_status: string;
+};
+
+export type JobBids = {
+  job_id: number;
+  title: string;
+  description: string;
+  deadline: Date;
+  budget: number;
+  job_status: string;
+  bids: Bid[];
+};

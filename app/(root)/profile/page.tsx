@@ -26,6 +26,9 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { User, UserWithSkills } from "@/types";
 import { getUserDetails, getUserWithSkills } from "@/server";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateUserDetails } from "@/server";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock available skills (replace with actual skill data in your app)
 const availableSkills = [
@@ -46,8 +49,8 @@ const availableSkills = [
   "React Native",
   "Backend Development",
 ];
-
 export default function ProfilePage() {
+  const { toast } = useToast();
   const [userData, setUserData] = useState<UserWithSkills>();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState("");
@@ -62,7 +65,6 @@ export default function ProfilePage() {
     },
     enabled: !!user?.emailAddresses[0].emailAddress,
   });
-  console.log(data);
   const { data: userdata, isLoading: userdataLoading } = useQuery({
     queryKey: ["userdata"],
     queryFn: async () => {
@@ -73,35 +75,58 @@ export default function ProfilePage() {
     },
     enabled: !!data?.[0].user_id,
   });
+  const queryClient = useQueryClient();
 
+  const updateUserMutation = useMutation({
+    mutationFn: updateUserDetails,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userdata"] });
+      toast({
+        title: "Profile updated successfully",
+        variant: "default",
+      });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update profile",
+        variant: "destructive",
+      });
+      console.error("Error updating profile:", error);
+    },
+  });
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUserTypeChange = (value: string) => {
-    setUserData((prev) => ({ ...prev, role: value }));
+    setUserData((prev) => (prev ? { ...prev, [name]: value } : undefined));
   };
 
   const handleAddSkill = () => {
     if (selectedSkill && userData && !userData.skills.includes(selectedSkill)) {
-      setUserData((prev) => ({
-        ...prev,
-        skills: [...(prev?.skills || []), selectedSkill],
-      }));
+      setUserData({
+        ...userData,
+        skills: [...userData.skills, selectedSkill],
+      });
       setSelectedSkill("");
     }
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setUserData((prev) => ({
-      ...prev,
-      skills: prev?.skills.filter((skill) => skill !== skillToRemove) || [],
-    }));
+    if (userData) {
+      setUserData({
+        ...userData,
+        skills: userData.skills.filter((skill) => skill !== skillToRemove),
+      });
+    }
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the updated data to your backend
+    if (userData) {
+      updateUserMutation.mutate({
+        userId: userData.user_id,
+        name: userData.name,
+        skills: userData.skills,
+      });
+    }
     console.log("Updating profile:", userData);
     setIsEditing(false);
   };
@@ -135,20 +160,9 @@ export default function ProfilePage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={userData?.email}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="skills">Skills</Label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {userdata?.skills.map((skill) => (
+                  {userData?.skills.map((skill) => (
                     <Badge key={skill} variant="secondary" className="text-sm">
                       {skill}
                       {isEditing && (
@@ -185,22 +199,6 @@ export default function ProfilePage() {
                     </Button>
                   </div>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="userType">User Type</Label>
-                <Select
-                  value={userData?.role}
-                  onValueChange={handleUserTypeChange}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger id="userType">
-                    <SelectValue placeholder="Select user type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="client">Client</SelectItem>
-                    <SelectItem value="freelancer">Freelancer</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </form>

@@ -77,6 +77,7 @@ export async function getUserDetails(email: string) {
   const response = await sql`SELECT * FROM Users WHERE email = ${email};`;
   return response;
 }
+
 export async function createBid(
   jobId: number,
   freelancerId: number,
@@ -90,6 +91,7 @@ VALUES (${jobId}, ${freelancerId}, ${bidAmount}, 'pending', CURRENT_TIMESTAMP);`
 }
 
 export async function deleteBid(bidId: number) {
+  console.log("Deleting bid:", bidId);
   const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
   const response = await sql`DELETE FROM Bids WHERE bid_id = ${bidId};`;
   console.log("Bid deleted:", response);
@@ -139,4 +141,81 @@ export async function createJob(
     `;
   }
   return jobId;
+}
+
+export async function getAppliedJobs(userId: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response = await sql`SELECT 
+    j.job_id,
+    j.title,
+    j.description,
+    j.status AS job_status,
+    j.budget,
+    j.deadline,
+    b.bid_amount,
+    b.status AS bid_status
+FROM Jobs j
+JOIN Bids b ON j.job_id = b.job_id
+WHERE b.freelancer_id = ${userId};
+`;
+  return response;
+}
+
+export async function getUserPostedJobs(userId: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response = await sql`
+    SELECT 
+    j.job_id,
+    j.title,
+    j.description,
+    j.budget,
+    j.deadline,
+    j.status AS job_status,
+    json_agg(
+        json_build_object(
+            'bid_id', b.bid_id,
+            'freelancer_id', b.freelancer_id,
+            'freelancer_name', u.name,
+            'bid_amount', b.bid_amount,
+            'status', b.status
+        )
+    ) AS bids
+FROM Jobs j
+LEFT JOIN Bids b ON j.job_id = b.job_id
+LEFT JOIN Users u ON b.freelancer_id = u.user_id
+WHERE j.client_id = ${userId}
+GROUP BY j.job_id;
+  `;
+  console.log("User posted jobs:", response);
+  return response;
+}
+
+export async function updateUserDetails({
+  userId,
+  name,
+  skills,
+}: {
+  userId: number;
+  name: string;
+  skills: string[];
+}) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response = await sql`
+      UPDATE Users
+      SET name = ${name}
+      WHERE user_id = ${userId};
+    `;
+  console.log("User updated:", response);
+  const deleteSkills = await sql`
+      DELETE FROM Skills
+      WHERE user_id = ${userId};
+    `;
+  for (const skill of skills) {
+    await sql`
+        INSERT INTO Skills (user_id, skill_name)
+        VALUES (${userId}, ${skill});
+      `;
+  }
+
+  return deleteSkills;
 }

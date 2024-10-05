@@ -82,15 +82,13 @@ const PageJob = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [deletingBidId, setDeletingBidId] = useState<number | null>(null);
-  const handleDeleteBid = (bidId: number) => {
-    setDeletingBidId(bidId);
-  };
   const { data: bids, isLoading: isLoadingBids } = useQuery<Bid[]>({
     queryKey: ["bids"],
     queryFn: async () => {
       const result = await getJobById(jobId);
       return result as Bid[];
     },
+    enabled: !!job,
   });
   const mutation = useMutation({
     mutationFn: async () => {
@@ -118,8 +116,8 @@ const PageJob = () => {
     },
   });
   const delMutation = useMutation({
-    mutationFn: async () => {
-      const result = await deleteBid(deletingBidId!);
+    mutationFn: async (bidId: number) => {
+      const result = await deleteBid(bidId);
       return result;
     },
     onSuccess: () => {
@@ -128,7 +126,6 @@ const PageJob = () => {
         description: "Bid deleted successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["bids"] });
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
       setDeletingBidId(null);
     },
     onError: (err: any) => {
@@ -137,20 +134,21 @@ const PageJob = () => {
         description: `Failed to delete bid`,
         variant: "destructive",
       });
-      setDeletingBidId(null);
     },
   });
   const confirmDeleteBid = async () => {
     if (deletingBidId) {
-      delMutation.mutate();
+      delMutation.mutate(deletingBidId);
       console.log(`Deleting bid ${deletingBidId}`);
       setDeletingBidId(null);
+      router.refresh();
     }
   };
   const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate();
     setIsBidModalOpen(false);
+    router.refresh();
   };
   const handleApplyClick = () => {
     if (userDetails?.[0].role === "client") {
@@ -159,7 +157,6 @@ const PageJob = () => {
       setIsBidModalOpen(true);
     }
   };
-
   if (isLoading || isLoadingUserDetails) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -243,7 +240,10 @@ const PageJob = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteBid(deletingBidId!)}
+                              onClick={() => {
+                                setDeletingBidId(bid.bid_id);
+                                console.log(deletingBidId);
+                              }}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -315,11 +315,7 @@ const PageJob = () => {
       </div>
       <AlertDialog
         open={deletingBidId !== null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setDeletingBidId(null);
-          }
-        }}
+        onOpenChange={() => setDeletingBidId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
