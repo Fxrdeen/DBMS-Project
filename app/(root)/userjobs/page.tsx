@@ -308,11 +308,11 @@ export default function UserJobsPage() {
             <TableBody>
               {selectedJob?.bids?.map((bid: Bid) => (
                 <TableRow key={bid.bid_id}>
-                  <TableCell>{bid.freelancer_name}</TableCell>
-                  <TableCell>{bid.bid_amount}</TableCell>
-                  <TableCell>{bid.status.toUpperCase()}</TableCell>
+                  <TableCell>{bid?.freelancer_name}</TableCell>
+                  <TableCell>{bid?.bid_amount}</TableCell>
+                  <TableCell>{bid?.status?.toUpperCase()}</TableCell>
                   <TableCell>
-                    {bid.status === "pending" && (
+                    {bid?.status === "pending" && (
                       <>
                         <Button variant="outline" size="sm" className="mr-2">
                           Accept
