@@ -12,6 +12,8 @@ import { Job } from "@/types";
 import { getJobs } from "@/server";
 import { Loader2 } from "lucide-react";
 import { User } from "@clerk/nextjs/server";
+import WordPullUp from "./ui/word-pull-up";
+import LetterPullup from "./ui/letter-pullup";
 
 export default function AppPage({ user }: { user: User }) {
   const { data, isLoading } = useQuery<Job[]>({
@@ -35,12 +37,16 @@ export default function AppPage({ user }: { user: User }) {
         {/* Hero Section */}
         <section className="bg-primary text-primary-foreground py-20 px-4">
           <div className="container mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Welcome to Contractix
-            </h1>
-            <p className="text-xl md:text-2xl mb-8">
-              A job marketplace to find freelance jobs
-            </p>
+            <WordPullUp
+              words="Welcome to Contractix"
+              className="text-6xl md:text-5xl font-bold mb-4"
+            />
+
+            <LetterPullup
+              words="A job marketplace to find freelance jobs"
+              className="text-xl md:text-2xl mb-8 dark:text-black"
+            />
+
             <Link
               href="/jobs"
               className="bg-background text-primary hover:bg-background/90 px-6 py-3 rounded-md font-semibold transition-colors duration-200"
