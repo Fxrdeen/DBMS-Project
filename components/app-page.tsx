@@ -55,8 +55,6 @@ export default function AppPage({ user }: { user: User }) {
             </Link>
           </div>
         </section>
-
-        {/* Job Listings */}
         <section className="py-16 px-4">
           <div className="container mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
