@@ -28,8 +28,9 @@ import {
   getJobById,
   getJobs,
   getUserDetails,
+  updateBidAmount,
 } from "@/server";
-import { Loader2, Trash2 } from "lucide-react";
+import { Edit, Loader2, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -78,6 +79,8 @@ const PageJob = () => {
   const job = data?.find((j) => j.job_id === jobId);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [editingBidId, setEditingBidId] = useState<number | null>(null);
+  const [editBidAmount, setEditBidAmount] = useState("");
   const [bidAmount, setBidAmount] = useState("");
   const { toast } = useToast();
   const router = useRouter();
@@ -136,6 +139,38 @@ const PageJob = () => {
       });
     },
   });
+  const updateMutation = useMutation({
+    mutationFn: async (data: { bidId: number; amount: number }) => {
+      const result = await updateBidAmount(data.bidId, data.amount);
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Bid updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["bids"] });
+      router.refresh();
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to update bid`,
+        variant: "destructive",
+      });
+    },
+  });
+  const handleEditBidSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingBidId) {
+      updateMutation.mutate({
+        bidId: editingBidId,
+        amount: Number(editBidAmount),
+      });
+      setEditingBidId(null);
+    }
+  };
+
   const confirmDeleteBid = async () => {
     if (deletingBidId) {
       delMutation.mutate(deletingBidId);
@@ -237,16 +272,29 @@ const PageJob = () => {
                         </TableCell>
                         <TableCell>
                           {bid.freelancer_name === userDetails?.[0].name && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setDeletingBidId(bid.bid_id);
-                                console.log(deletingBidId);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setDeletingBidId(bid.bid_id);
+                                  console.log(deletingBidId);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingBidId(bid.bid_id);
+                                  console.log(editingBidId);
+                                }}
+                                className="ml-2"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </>
                           )}
                         </TableCell>
                       </TableRow>
@@ -261,6 +309,7 @@ const PageJob = () => {
             </CardContent>
           </Card>
         </div>
+
         <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -335,6 +384,42 @@ const PageJob = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog
+        open={editingBidId !== null}
+        onOpenChange={() => setEditingBidId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Your Bid</DialogTitle>
+            <DialogDescription>
+              Update your bid amount for this job.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditBidSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-bid-amount" className="text-right">
+                  New Bid Amount ($)
+                </Label>
+                <Input
+                  id="edit-bid-amount"
+                  type="number"
+                  value={editBidAmount}
+                  onChange={(e) => setEditBidAmount(e.target.value)}
+                  className="col-span-3"
+                  placeholder="Enter new bid amount"
+                  min="1"
+                  step="1"
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Update Bid</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -98,6 +98,13 @@ export async function deleteBid(bidId: number) {
   return response;
 }
 
+export async function updateBidAmount(bidId: number, amount: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response =
+    await sql`UPDATE Bids SET bid_amount = ${amount} WHERE bid_id = ${bidId};`;
+  return response;
+}
+
 export async function getUserWithSkills(userId: number) {
   const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
   const response = await sql`SELECT 
