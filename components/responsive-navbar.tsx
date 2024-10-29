@@ -57,7 +57,7 @@ export default function ResponsiveNavbar({ user }: { user: User }) {
               <NavLink href="/jobs">Find Jobs</NavLink>
               <NavLink href="/create">Post Jobs</NavLink>
               <NavLink href="/userjobs">Your Jobs</NavLink>
-              <NavLink href="/about">About</NavLink>
+              <NavLink href="/inprogress">In Progress</NavLink>
               <NavLink href="/contact">Contact</NavLink>
             </div>
           </div>
