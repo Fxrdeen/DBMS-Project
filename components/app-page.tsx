@@ -14,6 +14,8 @@ import { Loader2 } from "lucide-react";
 import { User } from "@clerk/nextjs/server";
 import WordPullUp from "./ui/word-pull-up";
 import LetterPullup from "./ui/letter-pullup";
+import SlightFlip from "./ui/flip-text";
+import BlurIn from "./ui/blur-in";
 
 export default function AppPage({ user }: { user: User }) {
   const { data, isLoading } = useQuery<Job[]>({
@@ -42,9 +44,10 @@ export default function AppPage({ user }: { user: User }) {
               className="text-6xl md:text-5xl font-bold mb-4"
             />
 
-            <LetterPullup
-              words="A job marketplace to find freelance jobs"
+            <BlurIn
+              word="A job marketplace to find freelance jobs"
               className="text-xl md:text-2xl mb-8 dark:text-black"
+              duration={0.5}
             />
 
             <Link

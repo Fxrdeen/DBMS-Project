@@ -28,43 +28,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getAppliedJobs, getUserDetails, getUserPostedJobs } from "@/server";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  acceptBid,
+  getAppliedJobs,
+  getUserDetails,
+  getUserPostedJobs,
+  rejectBid,
+} from "@/server";
 import { Loader, Loader2 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { Bid, JobBids, User, userBids } from "@/types";
-const postedJobs = [
-  {
-    id: 3,
-    title: "Backend Developer for E-commerce Site",
-    status: "Open",
-    applicants: 5,
-    budget: "$5000 - $8000",
-    deadline: "2023-12-15",
-    description:
-      "We need a skilled backend developer to build robust APIs for our e-commerce platform.",
-    bids: [
-      { id: 1, bidder: "Alice Johnson", amount: "$5500", status: "Pending" },
-      { id: 2, bidder: "Bob Smith", amount: "$6000", status: "Pending" },
-      { id: 3, bidder: "Charlie Brown", amount: "$5800", status: "Pending" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Full Stack Developer for SaaS Platform",
-    status: "Closed",
-    applicants: 10,
-    budget: "$7000 - $10000",
-    deadline: "2023-10-31",
-    description:
-      "Looking for a full stack developer to help build and maintain our SaaS platform.",
-    bids: [
-      { id: 4, bidder: "David Lee", amount: "$8000", status: "Accepted" },
-      { id: 5, bidder: "Eva Garcia", amount: "$7500", status: "Rejected" },
-      { id: 6, bidder: "Frank Wilson", amount: "$9000", status: "Rejected" },
-    ],
-  },
-];
+import { toast } from "@/hooks/use-toast";
 
 export default function UserJobsPage() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
@@ -76,6 +51,44 @@ export default function UserJobsPage() {
     setSelectedJob(job);
     setIsViewModalOpen(true);
   };
+  const rejectMutation = useMutation({
+    mutationFn: async (bidId: number) => {
+      const result = await rejectBid(bidId);
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Bid rejected successfully",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to reject bid`,
+        variant: "destructive",
+      });
+    },
+  });
+  const acceptMutation = useMutation({
+    mutationFn: async (bidId: number) => {
+      const result = await acceptBid(bidId);
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Bid accepted successfully",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to accept bid`,
+        variant: "destructive",
+      });
+    },
+  });
   const { data: userDetails, isLoading: userDetailsLoading } = useQuery<User[]>(
     {
       queryKey: ["user"],
@@ -214,7 +227,7 @@ export default function UserJobsPage() {
                                 : "secondary"
                             }
                           >
-                            {job.job_status}
+                            {job.job_status.toUpperCase()}
                           </Badge>
                         </CardDescription>
                       </CardHeader>
@@ -314,10 +327,19 @@ export default function UserJobsPage() {
                   <TableCell>
                     {bid?.status === "pending" && (
                       <>
-                        <Button variant="outline" size="sm" className="mr-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mr-2"
+                          onClick={() => acceptMutation.mutate(bid.bid_id)}
+                        >
                           Accept
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => rejectMutation.mutate(bid.bid_id)}
+                        >
                           Reject
                         </Button>
                       </>

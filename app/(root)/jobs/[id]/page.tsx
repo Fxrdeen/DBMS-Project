@@ -271,31 +271,32 @@ const PageJob = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {bid.freelancer_name === userDetails?.[0].name && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setDeletingBidId(bid.bid_id);
-                                  console.log(deletingBidId);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setEditingBidId(bid.bid_id);
-                                  console.log(editingBidId);
-                                }}
-                                className="ml-2"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
+                          {bid.freelancer_name === userDetails?.[0].name &&
+                            bid.status === "pending" && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setDeletingBidId(bid.bid_id);
+                                    console.log(deletingBidId);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingBidId(bid.bid_id);
+                                    console.log(editingBidId);
+                                  }}
+                                  className="ml-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
                         </TableCell>
                       </TableRow>
                     ))}

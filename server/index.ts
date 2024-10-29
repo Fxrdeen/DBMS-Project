@@ -226,3 +226,16 @@ export async function updateUserDetails({
 
   return deleteSkills;
 }
+export async function rejectBid(bidId: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response =
+    await sql`UPDATE Bids SET status = 'rejected' WHERE bid_id = ${bidId} and status = 'pending';`;
+  return response;
+}
+
+export async function acceptBid(bidId: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response =
+    await sql`UPDATE Bids SET status = 'accepted' WHERE bid_id = ${bidId} and status = 'pending';`;
+  return response;
+}
