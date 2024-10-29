@@ -235,6 +235,10 @@ const PageJob = () => {
                 <Button className="w-full" onClick={handleApplyClick} disabled>
                   You can't apply to your own job
                 </Button>
+              ) : job?.status === "in progress" ? (
+                <Button className="w-full" disabled>
+                  This job is already in progress. You can't apply to it.
+                </Button>
               ) : (
                 <Button className="w-full" onClick={handleApplyClick}>
                   Apply for this Job
