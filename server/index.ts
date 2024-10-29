@@ -239,3 +239,10 @@ export async function acceptBid(bidId: number) {
     await sql`UPDATE Bids SET status = 'accepted' WHERE bid_id = ${bidId} and status = 'pending';`;
   return response;
 }
+
+export async function completeJob(jobId: number) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response =
+    await sql`UPDATE Jobs SET status = 'completed' WHERE job_id = ${jobId};`;
+  return response;
+}

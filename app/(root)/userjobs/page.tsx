@@ -31,6 +31,7 @@ import React from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   acceptBid,
+  completeJob,
   getAppliedJobs,
   getUserDetails,
   getUserPostedJobs,

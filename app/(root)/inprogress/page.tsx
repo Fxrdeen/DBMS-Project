@@ -21,11 +21,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Star } from "lucide-react";
+import { CheckCircle, Loader2, Star } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { JobBids, User } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { getUserDetails, getUserPostedJobs } from "@/server";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { completeJob, getUserDetails, getUserPostedJobs } from "@/server";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for in-progress jobs
 const inProgressJobs = [
@@ -67,8 +68,9 @@ export default function InProgressPage() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState("");
+
   const { user } = useUser();
+  const { toast } = useToast();
   const { data: userDetails, isLoading: userDetailsLoading } = useQuery<User[]>(
     {
       queryKey: ["user"],
@@ -91,16 +93,29 @@ export default function InProgressPage() {
     },
     enabled: !!userDetails?.[0].user_id,
   });
+  const completeMutation = useMutation({
+    mutationFn: async (jobId: number) => {
+      const result = await completeJob(jobId);
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Job marked as completed successfully",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to mark job as completed`,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleOpenCompleteDialog = (job: any) => {
     setSelectedJob(job);
     setIsCompleteModalOpen(true);
-  };
-
-  const handleCompleteJob = () => {
-    setJobs(jobs.filter((job) => job.id !== selectedJob.id));
-    setIsCompleteModalOpen(false);
-    // In a real application, you would also update the backend here
   };
 
   const handleOpenFeedback = (job: any) => {
@@ -110,14 +125,6 @@ export default function InProgressPage() {
 
   const handleSubmitFeedback = () => {
     // In a real application, you would send this feedback to the backend
-    console.log("Feedback submitted:", {
-      jobId: selectedJob.id,
-      rating,
-      feedback,
-    });
-    setIsFeedbackModalOpen(false);
-    setRating(0);
-    setFeedback("");
   };
 
   if (userDetailsLoading) {
@@ -169,13 +176,24 @@ export default function InProgressPage() {
                   <p className="mt-2">{job.description}</p>
                 </CardContent>
                 <CardFooter className="flex justify-between">
+                  {job.job_status === "in progress" ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenCompleteDialog(job)}
+                    >
+                      Complete Job
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <h1>Job has been completed</h1>
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                    </div>
+                  )}
+
                   <Button
-                    variant="outline"
-                    onClick={() => handleOpenCompleteDialog(job)}
+                    onClick={() => handleOpenFeedback(job)}
+                    disabled={job.job_status === "in progress"}
                   >
-                    Complete Job
-                  </Button>
-                  <Button onClick={() => handleOpenFeedback(job)}>
                     Give Feedback
                   </Button>
                 </CardFooter>
@@ -203,7 +221,13 @@ export default function InProgressPage() {
             >
               No, Keep in Progress
             </Button>
-            <Button type="button" onClick={handleCompleteJob}>
+            <Button
+              type="button"
+              onClick={() => {
+                completeMutation.mutate(selectedJob.job_id);
+                setIsCompleteModalOpen(false);
+              }}
+            >
               Yes, Mark as Complete
             </Button>
           </DialogFooter>
@@ -234,14 +258,6 @@ export default function InProgressPage() {
                 />
               ))}
             </div>
-            <Label htmlFor="feedback">Feedback</Label>
-            <Textarea
-              id="feedback"
-              placeholder="Write your feedback here..."
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              className="mt-2"
-            />
           </div>
           <DialogFooter>
             <Button onClick={handleSubmitFeedback}>Submit Feedback</Button>
