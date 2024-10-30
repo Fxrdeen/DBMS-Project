@@ -246,3 +246,21 @@ export async function completeJob(jobId: number) {
     await sql`UPDATE Jobs SET status = 'completed' WHERE job_id = ${jobId};`;
   return response;
 }
+
+export async function giveFeedback(
+  jobId: number,
+  fromUserId: number,
+  toUserId: number,
+  rating: number
+) {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response =
+    await sql`INSERT INTO Feedback (job_id, from_user_id, to_user_id, rating) VALUES (${jobId}, ${fromUserId}, ${toUserId}, ${rating});`;
+  return response;
+}
+
+export async function getAllFeedback() {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  const response = await sql`SELECT * FROM Feedback;`;
+  return response;
+}

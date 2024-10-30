@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -19,51 +18,20 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, Loader2, Star } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import { JobBids, User } from "@/types";
+import { Feedback, JobBids, User } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { completeJob, getUserDetails, getUserPostedJobs } from "@/server";
+import {
+  completeJob,
+  getAllFeedback,
+  getUserDetails,
+  getUserPostedJobs,
+  giveFeedback,
+} from "@/server";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data for in-progress jobs
-const inProgressJobs = [
-  {
-    id: 1,
-    title: "E-commerce Website Development",
-    freelancer: "Alice Johnson",
-    startDate: "2023-06-01",
-    expectedEndDate: "2023-08-31",
-    budget: "$5000",
-    description:
-      "Developing a full-featured e-commerce website with product management, shopping cart, and payment integration.",
-  },
-  {
-    id: 2,
-    title: "Mobile App UI Design",
-    freelancer: "Bob Smith",
-    startDate: "2023-07-15",
-    expectedEndDate: "2023-09-15",
-    budget: "$3000",
-    description:
-      "Creating user interface designs for a new mobile app, including wireframes and high-fidelity mockups.",
-  },
-  {
-    id: 3,
-    title: "Content Writing for Blog",
-    freelancer: "Charlie Brown",
-    startDate: "2023-08-01",
-    expectedEndDate: "2023-10-31",
-    budget: "$2000",
-    description:
-      "Writing a series of 20 blog posts on various topics related to digital marketing and SEO.",
-  },
-];
-
 export default function InProgressPage() {
-  const [jobs, setJobs] = useState(inProgressJobs);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -112,7 +80,38 @@ export default function InProgressPage() {
       });
     },
   });
-
+  const { data: feedback, isLoading: isFeedbackLoading } = useQuery({
+    queryKey: ["feedback"],
+    queryFn: async () => {
+      const result = await getAllFeedback();
+      return result as Feedback[];
+    },
+  });
+  const feedbackMutation = useMutation({
+    mutationFn: async (jobId: number) => {
+      const result = await giveFeedback(
+        jobId,
+        userDetails?.[0].user_id as number,
+        selectedJob.bids.filter((bid: any) => bid.status === "accepted")[0]
+          .freelancer_id as number,
+        rating
+      );
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Feedback submitted successfully",
+      });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: `Failed to submit feedback`,
+        variant: "destructive",
+      });
+    },
+  });
   const handleOpenCompleteDialog = (job: any) => {
     setSelectedJob(job);
     setIsCompleteModalOpen(true);
@@ -121,10 +120,6 @@ export default function InProgressPage() {
   const handleOpenFeedback = (job: any) => {
     setSelectedJob(job);
     setIsFeedbackModalOpen(true);
-  };
-
-  const handleSubmitFeedback = () => {
-    // In a real application, you would send this feedback to the backend
   };
 
   if (userDetailsLoading) {
@@ -149,7 +144,6 @@ export default function InProgressPage() {
         </div>
       </section>
 
-      {/* Job Listings */}
       <section className="py-12 px-4">
         <div className="container mx-auto">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -189,13 +183,18 @@ export default function InProgressPage() {
                       <CheckCircle className="w-6 h-6 text-green-500" />
                     </div>
                   )}
-
-                  <Button
-                    onClick={() => handleOpenFeedback(job)}
-                    disabled={job.job_status === "in progress"}
-                  >
-                    Give Feedback
-                  </Button>
+                  {feedback?.filter(
+                    (feedback) => feedback.job_id === job.job_id
+                  ).length === 0 ? (
+                    <Button
+                      onClick={() => handleOpenFeedback(job)}
+                      disabled={job.job_status === "in progress"}
+                    >
+                      Give Feedback
+                    </Button>
+                  ) : (
+                    <h1>Feedback already given</h1>
+                  )}
                 </CardFooter>
               </Card>
             ))}
@@ -210,7 +209,12 @@ export default function InProgressPage() {
             <DialogTitle>Complete Job</DialogTitle>
             <DialogDescription>
               Are you satisfied with the project "{selectedJob?.title}" by{" "}
-              {selectedJob?.freelancer}?
+              {
+                selectedJob?.bids.filter(
+                  (bid: any) => bid.status === "accepted"
+                )[0].freelancer_name
+              }
+              ?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-start">
@@ -241,7 +245,11 @@ export default function InProgressPage() {
             <DialogTitle>Give Feedback</DialogTitle>
             <DialogDescription>
               Rate your experience and provide feedback for{" "}
-              {selectedJob?.freelancer}
+              {
+                selectedJob?.bids.filter(
+                  (bid: any) => bid.status === "accepted"
+                )[0].freelancer_name
+              }
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -260,7 +268,15 @@ export default function InProgressPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleSubmitFeedback}>Submit Feedback</Button>
+            <Button
+              onClick={() => {
+                feedbackMutation.mutate(selectedJob.job_id);
+                setIsFeedbackModalOpen(false);
+              }}
+              disabled={rating === 0}
+            >
+              Submit Feedback
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

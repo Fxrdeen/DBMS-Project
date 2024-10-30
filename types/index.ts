@@ -20,6 +20,7 @@ export type Job = {
 
 export type Bid = {
   bid_id: number;
+  freelancer_id: number;
   freelancer_name: string;
   bid_amount: number;
   status: string;
@@ -55,4 +56,11 @@ export type JobBids = {
   budget: number;
   job_status: string;
   bids: Bid[];
+};
+
+export type Feedback = {
+  feedback_id: number;
+  job_id: number;
+  from_user_id: number;
+  to_user_id: number;
 };
