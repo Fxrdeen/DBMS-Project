@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
 import { User } from "@clerk/nextjs/server";
 import {
   HoverCard,
@@ -165,26 +165,38 @@ export default function ResponsiveNavbar({ user }: { user: User }) {
             transition={{ duration: 0.3 }}
           >
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <NavLink href="/about" mobile>
-                About
-              </NavLink>
-              <NavLink href="/find-jobs" mobile>
+              <NavLink href="/jobs" mobile>
                 Find Jobs
               </NavLink>
-              <NavLink href="/post-jobs" mobile>
+              <NavLink href="/create" mobile>
                 Post Jobs
               </NavLink>
               <NavLink href="/userjobs" mobile>
                 Your Jobs
               </NavLink>
+              <NavLink href="/inprogress" mobile>
+                In Progress
+              </NavLink>
+              <NavLink href="/contact" mobile>
+                Contact
+              </NavLink>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
             </div>
-            <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
-              <div className="px-2">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300">
-                  Sign In
-                </Button>
+            {!user && (
+              <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="px-2">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300">
+                    <SignInButton>
+                      <span className="text-white dark:text-black">
+                        Sign In
+                      </span>
+                    </SignInButton>
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

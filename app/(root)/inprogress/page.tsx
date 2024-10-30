@@ -30,13 +30,14 @@ import {
   giveFeedback,
 } from "@/server";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function InProgressPage() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
-
+  const router = useRouter();
   const { user } = useUser();
   const { toast } = useToast();
   const { data: userDetails, isLoading: userDetailsLoading } = useQuery<User[]>(
@@ -230,6 +231,7 @@ export default function InProgressPage() {
               onClick={() => {
                 completeMutation.mutate(selectedJob.job_id);
                 setIsCompleteModalOpen(false);
+                router.refresh();
               }}
             >
               Yes, Mark as Complete
@@ -272,6 +274,7 @@ export default function InProgressPage() {
               onClick={() => {
                 feedbackMutation.mutate(selectedJob.job_id);
                 setIsFeedbackModalOpen(false);
+                router.refresh();
               }}
               disabled={rating === 0}
             >

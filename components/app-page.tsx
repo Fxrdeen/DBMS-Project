@@ -121,7 +121,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/careers"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Careers
@@ -134,7 +134,7 @@ export default function AppPage({ user }: { user: User }) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/find-jobs"
+                    href="/jobs"
                     className="hover:text-primary transition-colors"
                   >
                     Find Jobs
@@ -142,7 +142,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/create-profile"
+                    href="/profile"
                     className="hover:text-primary transition-colors"
                   >
                     Create Profile
@@ -150,7 +150,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/freelancer-resources"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Resources
@@ -163,7 +163,7 @@ export default function AppPage({ user }: { user: User }) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/post-jobs"
+                    href="/create"
                     className="hover:text-primary transition-colors"
                   >
                     Post Jobs
@@ -171,7 +171,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/find-freelancers"
+                    href="/jobs"
                     className="hover:text-primary transition-colors"
                   >
                     Find Freelancers
@@ -179,7 +179,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/client-resources"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Resources
@@ -192,7 +192,7 @@ export default function AppPage({ user }: { user: User }) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/privacy-policy"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Privacy Policy
@@ -200,7 +200,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/terms-of-service"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Terms of Service
@@ -208,7 +208,7 @@ export default function AppPage({ user }: { user: User }) {
                 </li>
                 <li>
                   <Link
-                    href="/cookie-policy"
+                    href="/"
                     className="hover:text-primary transition-colors"
                   >
                     Cookie Policy
