@@ -99,8 +99,8 @@ export function SignUp() {
       setVerifying(true);
     } catch (err: any) {
       toast({
-        title: "Error",
-        description: "Failed to sign up",
+        title: "Failed to sign up",
+        description: err.errors[0].longMessage,
         variant: "destructive",
       });
       console.error(JSON.stringify(err, null, 2));
@@ -116,12 +116,22 @@ export function SignUp() {
         code,
       });
       if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId });
-        toast({
-          title: "Success",
-          description: "Email verified successfully",
-        });
-        router.push("/");
+        try {
+          await setActive({ session: signUpAttempt.createdSessionId });
+          mutation.mutate();
+          toast({
+            title: "Success",
+            description: "Email verified successfully",
+          });
+          router.push("/");
+        } catch (err) {
+          toast({
+            title: "Error",
+            description: "Failed to activate session",
+            variant: "destructive",
+          });
+          console.error("Session Error:", JSON.stringify(err, null, 2));
+        }
       } else {
         toast({
           title: "Error",
@@ -131,6 +141,11 @@ export function SignUp() {
         console.error(JSON.stringify(signUpAttempt, null, 2));
       }
     } catch (err: any) {
+      toast({
+        title: "Error",
+        description: "Failed to verify email code",
+        variant: "destructive",
+      });
       console.error("Error:", JSON.stringify(err, null, 2));
     }
   };
@@ -320,12 +335,7 @@ export function SignUp() {
                   />
                 </div>
               ))}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-                onClick={() => mutation.mutate()}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing up..." : "Sign Up"}
               </Button>
             </form>
