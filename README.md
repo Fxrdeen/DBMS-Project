@@ -1,3 +1,7 @@
+Synopsis:
+The Contractor Job Marketplace is a comprehensive database management system designed to connect job providers and contractors within a secure, user-friendly platform. Targeting small to medium businesses and individual contractors, this system facilitates efficient job posting, bidding, and selection processes. The platform aims to streamline contract-based work by allowing job providers to post detailed job descriptions, budgets, and deadlines, while contractors can place competitive bids to win contracts.
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
