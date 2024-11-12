@@ -239,6 +239,10 @@ const PageJob = () => {
                 <Button className="w-full" disabled>
                   This job is already in progress. You can't apply to it.
                 </Button>
+              ) : job?.status === "completed" ? (
+                <Button className="w-full" disabled>
+                  Job completed.
+                </Button>
               ) : (
                 <Button className="w-full" onClick={handleApplyClick}>
                   Apply for this Job

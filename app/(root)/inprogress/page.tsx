@@ -192,7 +192,7 @@ export default function InProgressPage() {
                       ).length === 0 ? (
                         <Button
                           onClick={() => handleOpenFeedback(job)}
-                          disabled={job.job_status === "completed"}
+                          disabled={job.job_status === "in progress"}
                         >
                           Give Feedback
                         </Button>
